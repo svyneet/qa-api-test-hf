@@ -36,9 +36,10 @@ public class APITest extends TestBase{
 
 	@Test
 	public void getCountriesAndValidateUSDEGB() {
+		//Test Data
 		ArrayList<String> alphaCodes2 = new ArrayList<String>();
 		String[] countriesRequired = { "US", "DE", "GB" };
-		//
+		//Actions
 		response = httpRequest.request(Method.GET, "/all");
 		statusCode = response.getStatusCode();
 		JsonPath jsonPathEvaluator = response.jsonPath();
@@ -47,7 +48,7 @@ public class APITest extends TestBase{
 			alphaCodes2.add(c.alpha2_code);
 		}
 		
-		//
+		//Validations
 		assertEquals("Status code couldn't be verified.", statusCode, 200);
 		for (int i = 0; i < countriesRequired.length; i++) {
 			assertTrue("Response country " + countriesRequired[i] + " couldn't be verified",
@@ -57,17 +58,19 @@ public class APITest extends TestBase{
 
 	@Test
 	public void getEachCountryAndValidateUSDEGB() {
+		//Test Data
 		Country[] countries = new Country[3];
 		countries[0] = new Country("United States of America", "US", "USA");
 		countries[1] = new Country("Germany", "DE", "DEU");
 		countries[2] = new Country("United Kingdom of Great Britain and Northern Ireland", "GB", "GBR");
 		//
 		for (int i = 0; i < countries.length; i++) {
+			//Actions
 			response = httpRequest.request(Method.GET, "/iso2code/" + countries[i].getAlpha2Code());
 			statusCode = response.getStatusCode();
 			JsonPath jsonPathEvaluator = response.jsonPath();
 			Country countryResult = jsonPathEvaluator.getObject("RestResponse.result", Country.class);
-			//
+			//Validations
 			assertEquals("Status code for query: " +  countries[i].name + "couldn't be verified.", 200,
 					statusCode);
 			assertEquals("Country name: " + countries[i].name + " couldn't be verified", countries[i].name,
@@ -81,19 +84,21 @@ public class APITest extends TestBase{
 
 	@Test
 	public void getInvalidCountry() {
+		//Test Data
 		String alpha2_code = "ZZ";
 		String invalidMessage = "No matching country found for requested code [" + alpha2_code + "]";
-		//
+		//Actions
 		response = httpRequest.request(Method.GET, "/iso2code/" + alpha2_code);
 		statusCode = response.getStatusCode();
 		String message = response.getBody().asString();
-		//
+		//Validations
 		assertEquals("Status code couldn't be verified.", 200, statusCode);
 		assertTrue("Invalid country code could't be verified", message.contains(invalidMessage));
 	}
 
 	@Test
 	public void addNewCountry() {
+		//Test Data
 		Country country = new Country();
 		country.name = "Republican States of Africa";
 		country.alpha2_code = "RS";
@@ -102,11 +107,11 @@ public class APITest extends TestBase{
 		requestParams.put("name", country.name);
 		requestParams.put("alpha2_code", country.alpha2_code);
 		requestParams.put("alpha3_code", country.alpha3_code);
-		//
+		//Actions
 		httpRequest.body(requestParams.toJSONString());
 		response = httpRequest.post("/add_country");
 		statusCode = response.getStatusCode();
-		//
+		//Validations
 		assertEquals("Status code couldn't be verified.", 201, statusCode);
 		//TODO validation of response body
 	}
