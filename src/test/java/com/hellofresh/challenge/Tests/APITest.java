@@ -17,7 +17,7 @@ import org.junit.Test;
 import com.hellofresh.challenge.config.TestBase;
 import com.hellofresh.challenge.objects.Country;
 
-public class APITest extends TestBase{
+public class APITest extends TestBase {
 
 	public Properties settingsProp = null;
 	public Response response = null;
@@ -36,10 +36,10 @@ public class APITest extends TestBase{
 
 	@Test
 	public void getCountriesAndValidateUSDEGB() {
-		//Test Data
+		// Test Data
 		ArrayList<String> alphaCodes2 = new ArrayList<String>();
 		String[] countriesRequired = { "US", "DE", "GB" };
-		//Actions
+		// Actions
 		response = httpRequest.request(Method.GET, "/all");
 		statusCode = response.getStatusCode();
 		JsonPath jsonPathEvaluator = response.jsonPath();
@@ -47,8 +47,8 @@ public class APITest extends TestBase{
 		for (Country c : countries) {
 			alphaCodes2.add(c.alpha2_code);
 		}
-		
-		//Validations
+
+		// Validations
 		assertEquals("Status code couldn't be verified.", statusCode, 200);
 		for (int i = 0; i < countriesRequired.length; i++) {
 			assertTrue("Response country " + countriesRequired[i] + " couldn't be verified",
@@ -58,21 +58,20 @@ public class APITest extends TestBase{
 
 	@Test
 	public void getEachCountryAndValidateUSDEGB() {
-		//Test Data
+		// Test Data
 		Country[] countries = new Country[3];
 		countries[0] = new Country("United States of America", "US", "USA");
 		countries[1] = new Country("Germany", "DE", "DEU");
 		countries[2] = new Country("United Kingdom of Great Britain and Northern Ireland", "GB", "GBR");
 		//
 		for (int i = 0; i < countries.length; i++) {
-			//Actions
+			// Actions
 			response = httpRequest.request(Method.GET, "/iso2code/" + countries[i].getAlpha2Code());
 			statusCode = response.getStatusCode();
 			JsonPath jsonPathEvaluator = response.jsonPath();
 			Country countryResult = jsonPathEvaluator.getObject("RestResponse.result", Country.class);
-			//Validations
-			assertEquals("Status code for query: " +  countries[i].name + "couldn't be verified.", 200,
-					statusCode);
+			// Validations
+			assertEquals("Status code for query: " + countries[i].name + "couldn't be verified.", 200, statusCode);
 			assertEquals("Country name: " + countries[i].name + " couldn't be verified", countries[i].name,
 					countryResult.getName());
 			assertEquals("Country alpha2Code: " + countries[i].alpha2_code + " couldn't be verified",
@@ -84,36 +83,33 @@ public class APITest extends TestBase{
 
 	@Test
 	public void getInvalidCountry() {
-		//Test Data
+		// Test Data
 		String alpha2_code = "ZZ";
 		String invalidMessage = "No matching country found for requested code [" + alpha2_code + "]";
-		//Actions
+		// Actions
 		response = httpRequest.request(Method.GET, "/iso2code/" + alpha2_code);
 		statusCode = response.getStatusCode();
 		String message = response.getBody().asString();
-		//Validations
+		// Validations
 		assertEquals("Status code couldn't be verified.", 200, statusCode);
 		assertTrue("Invalid country code could't be verified", message.contains(invalidMessage));
 	}
 
 	@Test
 	public void addNewCountry() {
-		//Test Data
-		Country country = new Country();
-		country.name = "Republican States of Africa";
-		country.alpha2_code = "RS";
-		country.alpha3_code = "RSA";
+		// Test Data
+		Country country = new Country("Republican States of Africa","RS", "RSA");
 		JSONObject requestParams = new JSONObject();
-		requestParams.put("name", country.name);
-		requestParams.put("alpha2_code", country.alpha2_code);
-		requestParams.put("alpha3_code", country.alpha3_code);
-		//Actions
+		requestParams.put("name", country.getName());
+		requestParams.put("alpha2_code", country.getAlpha2Code());
+		requestParams.put("alpha3_code", country.getAlpha3Code());
+		// Actions
 		httpRequest.body(requestParams.toJSONString());
 		response = httpRequest.post("/add_country");
 		statusCode = response.getStatusCode();
-		//Validations
+		// Validations
 		assertEquals("Status code couldn't be verified.", 201, statusCode);
-		//TODO validation of response body
+		// TODO validation of response body
 	}
 
 }
